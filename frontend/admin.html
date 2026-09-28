@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PinkCart Admin 💗</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #fff0f6;
+            color: #5a2340;
+        }
+
+        header {
+            background: #ff69a3;
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 26px;
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .logout {
+            background: white;
+            color: #d63378;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 30px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(255, 105, 163, 0.15);
+        }
+
+        h2 {
+            color: #d63378;
+            margin-bottom: 20px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #f5b5ce;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #ff69a3;
+        }
+
+        .add-btn {
+            background: #ff69a3;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .add-btn:hover {
+            background: #e7548c;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #ffb6d5;
+            color: #5a2340;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #f5d1df;
+        }
+
+        .delete-btn {
+            background: #ff4d7d;
+            color: white;
+        }
+
+        .status-btn {
+            background: #ff69a3;
+            color: white;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                width: 95%;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th,
+            td {
+                padding: 7px;
+            }
+
+            header {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>PinkCart Admin 👑💗</h1>
+
+    <button class="logout" onclick="logout()">
+        Logout
+    </button>
+</header>
+
+<div class="container">
+
+    <!-- ADD PRODUCT -->
+
+    <div class="card">
+
+        <h2>➕ Add New Product</h2>
+
+        <input
+            type="text"
+            id="productName"
+            placeholder="Product Name"
+        >
+
+        <input
+            type="text"
+            id="productDescription"
+            placeholder="Product Description"
+        >
+
+        <input
+            type="number"
+            id="productPrice"
+            placeholder="Price"
+        >
+
+        <input
+            type="text"
+            id="productImage"
+            placeholder="Image URL"
+        >
+
+        <button
+            class="add-btn"
+            onclick="addProduct()"
+        >
+            Add Product 💗
+        </button>
+
+        <p id="productMessage" class="message"></p>
+
+    </div>
+
+
+    <!-- PRODUCTS -->
+
+    <div class="card">
+
+        <h2>🛍️ Manage Products</h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Action</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="productTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- ORDERS -->
+
+    <div class="card">
+
+        <h2>📦 Manage Orders</h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Order ID</th>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="orderTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const API_URL = "http://localhost:5000";
+
+
+// ================= CHECK ADMIN =================
+
+const token = localStorage.getItem("token");
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!token || !user) {
+
+    alert("Please login first");
+
+    window.location.href = "index.html";
+
+}
+
+if (user.role !== "admin") {
+
+    alert("Admin access required");
+
+    window.location.href = "index.html";
+
+}
+
+
+// ================= LOAD PRODUCTS =================
+
+async function loadProducts() {
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/api/products`
+        );
+
+        const products = await response.json();
+
+        const table =
+            document.getElementById("productTable");
+
+        table.innerHTML = "";
+
+        products.forEach(product => {
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td>${product.id}</td>
+
+                    <td>
+
+                        <img
+                            src="${product.image}"
+                            class="product-image"
+                            onerror="this.style.display='none'"
+                        >
+
+                    </td>
+
+                    <td>${product.name}</td>
+
+                    <td>₹${product.price}</td>
+
+                    <td>
+
+                        <button
+                            class="delete-btn"
+                            onclick="deleteProduct(${product.id})"
+                        >
+                            Delete
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+    }
+
+}
+
+
+// ================= ADD PRODUCT =================
+
+async function addProduct() {
+
+    const name =
+        document.getElementById("productName").value;
+
+    const description =
+        document.getElementById("productDescription").value;
+
+    const price =
+        document.getElementById("productPrice").value;
+
+    const image =
+        document.getElementById("productImage").value;
+
+
+    if (!name || !price) {
+
+        alert("Enter product name and price");
+
+        return;
+
+    }
+
+
+    const response = await fetch(
+        `${API_URL}/api/products`,
+        {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type": "application/json",
+
+                "Authorization":
+                    `Bearer ${token}`
+
+            },
+
+            body: JSON.stringify({
+
+                name,
+                description,
+                price,
+                image
+
+            })
+
+        }
+    );
+
+
+    const data = await response.json();
+
+
+    document.getElementById(
+        "productMessage"
+    ).innerText = data.message;
+
+
+    if (response.ok) {
+
+        document.getElementById(
+            "productName"
+        ).value = "";
+
+        document.getElementById(
+            "productDescription"
+        ).value = "";
+
+        document.getElementById(
+            "productPrice"
+        ).value = "";
+
+        document.getElementById(
+            "productImage"
+        ).value = "";
+
+
+        loadProducts();
+
+    }
+
+}
+
+
+// ================= DELETE PRODUCT =================
+
+async function deleteProduct(id) {
+
+    const confirmDelete =
+        confirm("Delete this product?");
+
+
+    if (!confirmDelete) {
+        return;
+    }
+
+
+    const response = await fetch(
+        `${API_URL}/api/products/${id}`,
+        {
+
+            method: "DELETE",
+
+            headers: {
+
+                "Authorization":
+                    `Bearer ${token}`
+
+            }
+
+        }
+    );
+
+
+    const data = await response.json();
+
+    alert(data.message);
+
+    loadProducts();
+
+}
+
+
+// ================= LOAD ORDERS =================
+
+async function loadOrders() {
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/api/admin/orders`,
+            {
+
+                headers: {
+
+                    "Authorization":
+                        `Bearer ${token}`
+
+                }
+
+            }
+        );
+
+
+        const orders = await response.json();
+
+        const table =
+            document.getElementById("orderTable");
+
+        table.innerHTML = "";
+
+
+        orders.forEach(order => {
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td>${order.id}</td>
+
+                    <td>${order.name}</td>
+
+                    <td>${order.email}</td>
+
+                    <td>₹${order.total_amount}</td>
+
+                    <td>
+
+                        <select
+                            onchange="updateStatus(
+                                ${order.id},
+                                this.value
+                            )"
+                        >
+
+                            <option
+                                value="Placed"
+                                ${order.status === "Placed" ? "selected" : ""}
+                            >
+                                Placed
+                            </option>
+
+                            <option
+                                value="Processing"
+                                ${order.status === "Processing" ? "selected" : ""}
+                            >
+                                Processing
+                            </option>
+
+                            <option
+                                value="Shipped"
+                                ${order.status === "Shipped" ? "selected" : ""}
+                            >
+                                Shipped
+                            </option>
+
+                            <option
+                                value="Delivered"
+                                ${order.status === "Delivered" ? "selected" : ""}
+                            >
+                                Delivered
+                            </option>
+
+                            <option
+                                value="Cancelled"
+                                ${order.status === "Cancelled" ? "selected" : ""}
+                            >
+                                Cancelled
+                            </option>
+
+                        </select>
+
+                    </td>
+
+                    <td>
+                        ${new Date(
+                            order.created_at
+                        ).toLocaleDateString()}
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+    }
+
+}
+
+
+// ================= UPDATE STATUS =================
+
+async function updateStatus(id, status) {
+
+    const response = await fetch(
+        `${API_URL}/api/orders/${id}/status`,
+        {
+
+            method: "PUT",
+
+            headers: {
+
+                "Content-Type": "application/json",
+
+                "Authorization":
+                    `Bearer ${token}`
+
+            },
+
+            body: JSON.stringify({
+                status: status
+            })
+
+        }
+    );
+
+
+    const data = await response.json();
+
+    alert(data.message);
+
+    loadOrders();
+
+}
+
+
+// ================= LOGOUT =================
+
+function logout() {
+
+    localStorage.removeItem("token");
+
+    localStorage.removeItem("user");
+
+    window.location.href = "index.html";
+
+}
+
+
+// ================= START =================
+
+loadProducts();
+
+loadOrders();
+
+</script>
+
+</body>
+</html>

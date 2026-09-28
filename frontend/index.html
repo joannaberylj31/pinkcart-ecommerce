@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PinkCart 🛍️</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            PinkCart <span>💗</span>
+        </div>
+
+        <div class="nav-links">
+
+            <a href="#home">Home</a>
+            <a href="#products">Products</a>
+            <a href="#orders">Orders</a>
+
+            <button onclick="showCart()" class="cart-button">
+                🛒 Cart
+                <span id="cartCount">0</span>
+            </button>
+
+            <button onclick="showLogin()" class="login-button">
+                Login
+            </button>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================= HERO ================= -->
+
+    <section id="home" class="hero">
+
+        <div class="hero-content">
+
+            <p class="small-title">
+                ✨ Welcome to PinkCart
+            </p>
+
+            <h1>
+                Shop with love. <br>
+                Shop with <span>PinkCart.</span> 💗
+            </h1>
+
+            <p>
+                Discover cute, stylish and affordable products
+                made for your everyday happiness.
+            </p>
+
+            <button
+                class="shop-button"
+                onclick="document.getElementById('products').scrollIntoView()">
+
+                Shop Now 🛍️
+
+            </button>
+
+        </div>
+
+        <div class="hero-image">
+            🛍️
+        </div>
+
+    </section>
+
+
+    <!-- ================= PRODUCTS ================= -->
+
+    <section id="products" class="products-section">
+
+        <div class="section-title">
+
+            <p>Our Collection</p>
+
+            <h2>
+                Cute things you'll love 💕
+            </h2>
+
+        </div>
+
+        <div id="productContainer" class="product-container">
+
+            <p class="loading">
+                Loading products... 💗
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= ORDERS ================= -->
+
+    <section id="orders" class="orders-section">
+
+        <div class="section-title">
+
+            <p>Your Orders</p>
+
+            <h2>
+                Track your orders 📦
+            </h2>
+
+        </div>
+
+        <div id="ordersContainer">
+
+            <p class="empty-message">
+                Login to view your orders 💗
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= CART MODAL ================= -->
+
+    <div id="cartModal" class="modal">
+
+        <div class="modal-content">
+
+            <button
+                class="close-button"
+                onclick="closeCart()">
+
+                ×
+
+            </button>
+
+            <h2>
+                Your Cart 🛒
+            </h2>
+
+            <div id="cartItems"></div>
+
+            <div class="cart-total">
+
+                Total:
+                ₹<span id="cartTotal">0</span>
+
+            </div>
+
+            <button
+                class="checkout-button"
+                onclick="checkout()">
+
+                Checkout 💳
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= LOGIN MODAL ================= -->
+
+    <div id="loginModal" class="modal">
+
+        <div class="modal-content auth-box">
+
+            <button
+                class="close-button"
+                onclick="closeLogin()">
+
+                ×
+
+            </button>
+
+            <h2 id="authTitle">
+                Welcome Back 💗
+            </h2>
+
+            <input
+                type="text"
+                id="authName"
+                placeholder="Your name"
+                style="display:none">
+
+            <input
+                type="email"
+                id="authEmail"
+                placeholder="Email">
+
+            <input
+                type="password"
+                id="authPassword"
+                placeholder="Password">
+
+            <button
+                class="checkout-button"
+                onclick="submitAuth()">
+
+                <span id="authButton">
+                    Login
+                </span>
+
+            </button>
+
+            <p
+                class="switch-auth"
+                onclick="toggleAuth()"
+                id="switchText">
+
+                Don't have an account?
+                <b>Register</b>
+
+            </p>
+
+            <p id="authMessage"></p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        <h2>
+            PinkCart 💗
+        </h2>
+
+        <p>
+            Your little corner of happiness on the internet.
+        </p>
+
+        <p>
+            © 2026 PinkCart. All rights reserved.
+        </p>
+
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
